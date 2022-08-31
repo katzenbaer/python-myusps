@@ -81,7 +81,7 @@ def _get_shipped_from(row):
         spans = row.find('div', {'id': 'coltextR2'}).find_all('span')
         if len(spans) < 2:
             return None
-        return spans[1].string
+        return spans[-1].string
     except AttributeError:
         return None
 
