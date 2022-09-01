@@ -70,7 +70,7 @@ def _get_primary_status(row):
 def _get_secondary_status(row):
     """Get package secondary status."""
     try:
-        return row.find('div', {'id': 'coltextR3'}).contents[1]
+        return list(row.find('div', {'id': 'coltextR3'}).stripped_strings)[1]
     except (AttributeError, IndexError):
         return None
 
@@ -204,6 +204,16 @@ def _get_dashboard(session, date=None):
     return response
 
 
+def _strip_values_in_dict(d):
+    r = {}
+    for k, v in d.items():
+        try:
+            r[k] = v.strip()
+        except AttributeError:
+            r[k] = v
+    return r
+
+
 def authenticated(function):
     """Re-authenticate if session expired."""
     def wrapped(*args):
@@ -243,14 +253,14 @@ def get_packages(session):
     parsed = BeautifulSoup(response.text, HTML_PARSER)
     packages = []
     for row in parsed.find_all('div', {'class': 'pack_row'}):
-        packages.append({
+        packages.append(_strip_values_in_dict({
             'tracking_number': _get_tracking_number(row),
             'primary_status': _get_primary_status(row),
             'secondary_status': _get_secondary_status(row),
             'status_timestamp': _get_status_timestamp(row),
             'shipped_from': _get_shipped_from(row),
             'delivery_date': _get_delivery_date(row)
-        })
+        }))
     return packages
 
 
