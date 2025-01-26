@@ -4,18 +4,18 @@ import datetime
 import logging
 import os.path
 import pickle
-import re
+
+import requests
+import requests_cache
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
-import requests
 from requests.auth import AuthBase
-import requests_cache
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.firefox.options import Options
-
 
 _LOGGER = logging.getLogger(__name__)
 HTML_PARSER = 'html.parser'
@@ -180,7 +180,8 @@ def _login(session):
     username.send_keys(session.auth.username)
     password = driver.find_element_by_name('password')
     password.send_keys(session.auth.password)
-    driver.find_element_by_id('btn-submit').click()
+    element = driver.find_element_by_id('btn-submit')
+    driver.execute_script("arguments[0].click();", element)
     try:
         WebDriverWait(driver, LOGIN_TIMEOUT).until(EC.title_is(WELCOME_TITLE))
     except TimeoutException:
